@@ -521,7 +521,10 @@ class DLSDKLauncher(Launcher):
             del self.exec_network
             self.network.reshape(shapes)
 
-        self.exec_network = self.ie_core.load_network(self.network, self.device, num_requests=self._num_requests)
+        if self.device == 'GPU':
+            self.exec_network = self.ie_core.load_network(self.network, 'DNNL', num_requests=self._num_requests)
+        else:
+            self.exec_network = self.ie_core.load_network(self.network, self.device, num_requests=self._num_requests)
 
     def _set_batch_size(self, batch_size):
         # in some cases we can not use explicit property for setting batch size, so we need to use reshape instead
@@ -718,7 +721,10 @@ class DLSDKLauncher(Launcher):
             self._print_input_output_info()
 
         if self.network:
-            self.exec_network = self.ie_core.load_network(self.network, self._device, num_requests=self.num_requests)
+            if self._device == 'GPU':
+                self.exec_network = self.ie_core.load_network(self.network, 'DNNL', num_requests=self.num_requests)
+            else:
+                self.exec_network = self.ie_core.load_network(self.network, self._device, num_requests=self.num_requests)
 
     def load_ir(self, xml_path, bin_path, log=False):
         self._model = xml_path
